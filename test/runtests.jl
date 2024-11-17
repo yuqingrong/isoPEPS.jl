@@ -12,3 +12,7 @@ end
 @testset "ImTebd" begin
     include("ImTebd.jl")
 end
+
+@testset "inner_product_mps" begin
+    include("inner_product_mps.jl")
+end

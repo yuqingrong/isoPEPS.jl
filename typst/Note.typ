@@ -222,7 +222,7 @@ $S U(4)_(i j) (theta)=U(2)(theta)_i(theta_(1:3)) times U(2)(theta)_j(theta_(4:6)
 
 $U(4)=S U(4)(theta) times e^(-i Phi)$, $e^(-i Phi)$ is a global phase.
 
-= Encoding of Matrix Product States into Quantum Circuits of One- and Two-Qubit Gates @Ran_2020
+= Encoding of Matrix Product States into Quantum Circuits of One- and Two-Qubit Gates 
 
 == Encoding matrix product state into single-layer quantum circuit
 
@@ -277,7 +277,7 @@ cost function?
 D layers: $|psi^~ > = vu(U)_D^+...vu(U)_2^+ vu(U)_1^+|0>$
 $quad F_D =-(ln|<psi|vu(U)_D^+...vu(U)_2^+ vu(U)_1^+|0>|)/N$
 
-= Simulating Large PEPs Tensor Networks on Small Quantum Devices @maccormack2021simulatinglargepepstensor
+= Simulating Large PEPs Tensor Networks on Small Quantum Devices 
 
 == PEPS
 
