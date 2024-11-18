@@ -7,8 +7,8 @@ J = 1.0
 h = 0.2
 nsites = 10
 tau = 0.01  
-iter = 1000
-
+iter = 0
+ 
 σz = [1.0 0.0; 0.0 -1.0] 
 σx = [0.0 1.0; 1.0 0.0]
 σi = [1.0 0.0; 0.0 1.0]
@@ -23,11 +23,11 @@ include("inner_product_mps.jl")
 
 function generate_random_mps(nsites::Int, d::Int, bond_dim::Int)
     tensors = Vector{AbstractArray}(undef, nsites)
-    tensors[1] = rand( d, bond_dim)
+    tensors[1] = svd(rand( d, bond_dim)).U
     for i in 2:nsites-1
-        tensors[i] = rand( bond_dim, d, bond_dim)
+        tensors[i] = reshape(svd(rand( bond_dim* d, bond_dim)).U,bond_dim, d, bond_dim)
     end 
-    tensors[nsites] = rand( bond_dim, d)
+    tensors[nsites] = svd(rand( bond_dim, d)).U
     return MPS(tensors)
 end
 mps=generate_random_mps(nsites,2,2)
@@ -66,10 +66,10 @@ function compute_energy(mps, nsites, J, h)
         if i==1  
             D=ein"abcd,ai,bij->cdj"(H_ZZ,mps_H.tensors[i],mps_H.tensors[i+1])
             D=D .+ epsilon
-            U,S,V=svd(reshape(D,2,4))
-            S_truncated = Diagonal(S)
-            mps_H.tensors[i]=reshape(U,2,2);
-            mps_H.tensors[i+1]=reshape((S_truncated*V'),2,2,2)
+            F=svd(reshape(D,2,4))
+            S_truncated = Diagonal(F.S)
+            mps_H.tensors[i]=reshape(F.U,2,2);
+            mps_H.tensors[i+1]=reshape((S_truncated*F.Vt),2,2,2)
             energy+=inner_product(mps,mps_H)
             G=ein"ab,ac->bc"(U_X,mps_H0.tensors[i])
             mps_H0.tensors[i]=G
@@ -79,10 +79,10 @@ function compute_energy(mps, nsites, J, h)
         elseif i==(nsites-1)
             D=ein"abcd,aij,bj->cdi"(H_ZZ,mps_H.tensors[i],mps_H.tensors[i+1])
             D=D .+ epsilon
-            U,S,V=svd(reshape(D,4,2))
-            S_truncated = Diagonal(S)
-            mps_H.tensors[i]=reshape(U[:,1:2],2,2,2);
-            mps_H.tensors[i+1]=reshape((S_truncated*V'),2,2)
+            F=svd(reshape(D,4,2))
+            S_truncated = Diagonal(F.S)
+            mps_H.tensors[i]=reshape(F.U,2,2,2);
+            mps_H.tensors[i+1]=reshape((S_truncated*F.Vt),2,2)
             energy+=inner_product(mps,mps_H)
             G=ein"ab,acd->bcd"(H_X,mps_H0.tensors[i])
             mps_H.tensors[i]=G
@@ -96,10 +96,10 @@ function compute_energy(mps, nsites, J, h)
         else
             D=ein"abcd,aij,bjk->cdik"(H_ZZ,mps_H.tensors[i],mps_H.tensors[i+1])
             D=D .+ epsilon
-            U,S,V=svd(reshape(D,4,4))
-            S_truncated = Diagonal(S)
-            mps_H.tensors[i]=reshape(U[:,1:2],2,2,2);
-            mps_H.tensors[i+1]=reshape((S_truncated*V)[:,1:2],2,2,2)
+            F=svd(reshape(D,4,4))
+            S_truncated = Diagonal(F.S)
+            mps_H.tensors[i]=reshape(F.U[:,1:2],2,2,2);
+            mps_H.tensors[i+1]=reshape((S_truncated[1:2,1:2]*F.Vt[1:2,:]),2,2,2)
             energy+=inner_product(mps,mps_H)
             G=ein"ab,aij->bij"(H_X,mps_H0.tensors[i])
             mps_H.tensors[i]=G
@@ -138,26 +138,26 @@ function time_evolve(iter::Int)
             if i==1  
                 D=ein"abcd,ai,bij->cdj"(U_ZZ,mps.tensors[i],mps.tensors[i+1])
                 D=D .+ epsilon
-                U,S,V=svd(reshape(D,2,4))
-                S_truncated = Diagonal(S)
-                mps.tensors[i]=reshape(U,2,2);
-                mps.tensors[i+1]=reshape((S_truncated*V'),2,2,2)
+                F=svd(reshape(D,2,4))
+                S_truncated = Diagonal(F.S)
+                mps.tensors[i]=reshape(F.U,2,2);
+                mps.tensors[i+1]=reshape((S_truncated*F.Vt),2,2,2)
          
             elseif i==nsites-1
                 D=ein"abcd,aij,bj->cdi"(U_ZZ,mps.tensors[i],mps.tensors[i+1])
                 D=D .+ epsilon
-                U,S,V=svd(reshape(D,4,2))
-                S_truncated = Diagonal(S)
-                mps.tensors[i]=reshape(U[:,1:2],2,2,2);
-                mps.tensors[i+1]=reshape((S_truncated*V'),2,2)
+                F=svd(reshape(D,4,2))
+                S_truncated = Diagonal(F.S)
+                mps.tensors[i]=reshape(F.U,2,2,2);
+                mps.tensors[i+1]=reshape((S_truncated*F.Vt),2,2)
             
             else
                 D=ein"abcd,aij,bjk->cdik"(U_ZZ,mps.tensors[i],mps.tensors[i+1])
                 D=D .+ epsilon
-                U,S,V=svd(reshape(D,4,4))
-                S_truncated = Diagonal(S)
-                mps.tensors[i]=reshape(U[:,1:2],2,2,2);
-                mps.tensors[i+1]=reshape((S_truncated*V)[:,1:2],2,2,2)
+                F=svd(reshape(D,4,4))
+                S_truncated = Diagonal(F.S)
+                mps.tensors[i]=reshape(F.U[:,1:2],2,2,2);
+                mps.tensors[i+1]=reshape((S_truncated[1:2,1:2]*F.Vt[1:2,:]),2,2,2)
              
             end 
             #normalize!(mps)
@@ -165,10 +165,10 @@ function time_evolve(iter::Int)
         for i in 2:2:(nsites - 1) 
             D=ein"abcd,aij,bjk->cdik"(U_ZZ,mps.tensors[i],mps.tensors[i+1])
                 D=D .+ epsilon
-                U,S,V=svd(reshape(D,4,4))
-                S_truncated = Diagonal(S)
-                mps.tensors[i]=reshape(U[:,1:2],2,2,2);
-                mps.tensors[i+1]=reshape((S_truncated*V)[:,1:2],2,2,2)
+                F=svd(reshape(D,4,4))
+                S_truncated = Diagonal(F.S)
+                mps.tensors[i]=reshape(F.U[:,1:2],2,2,2);
+                mps.tensors[i+1]=reshape((S_truncated[1:2,1:2]*F.Vt[1:2,:]),2,2,2)
             #normalize!(mps)
         end
         for i in 1:nsites

@@ -8,11 +8,11 @@ end
 function dagger_mps(mps::MPS{T}) where T<:AbstractArray
     nsites=length(mps.tensors)
     daggered_tensors = Vector{AbstractArray}(undef,nsites)
-    daggered_tensors[1]=conj(transpose(mps.tensors[1]))
+    daggered_tensors[1]=conj(mps.tensors[1])
     for i in 2:length(mps.tensors)-1
-        daggered_tensors[i]= conj(permutedims(mps.tensors[i], (3, 2, 1))) # Conjugate and permute (3D)
+        daggered_tensors[i]= conj(permutedims(mps.tensors[i], (3,2,1))) # Conjugate and permute (3D)
     end
-    daggered_tensors[end]= conj(transpose(mps.tensors[end]))
+    daggered_tensors[end]= conj(mps.tensors[end])
     return MPS(daggered_tensors)
 end
 
