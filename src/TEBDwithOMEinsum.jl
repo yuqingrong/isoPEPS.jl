@@ -31,7 +31,8 @@ function generate_random_mps(nsites::Int, d::Int, bond_dim::Int)
     return MPS(tensors)
 end
 mps=generate_random_mps(nsites,2,2)
-@show mps
+
+@show inner_product(mps,mps)
 """
 mps=Array{Any,1}(undef,nsites)1·
 mps[1]=randn(2,2);mps[nsites]=randn(2,2)
@@ -45,6 +46,7 @@ function normalize!(mps)
     end
 end
 """
+
 function normalize!(mps)
  
     global_norm = abs(inner_product(mps,mps))
@@ -53,8 +55,9 @@ function normalize!(mps)
     end
 end
 
+
 normalize!(mps)
-@show mps
+
 @show inner_product(mps,mps)
 
 function compute_energy(mps, nsites, J, h)
