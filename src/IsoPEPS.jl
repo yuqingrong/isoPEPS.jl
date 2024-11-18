@@ -1,5 +1,5 @@
 # TODO: isoPEPS is not a valid module name, capitalize it
-module isoPEPS
+module IsoPEPS
 
 using Yao, Yao.EasyBuild
 using KrylovKit: eigsolve
@@ -9,6 +9,7 @@ using Yao
 using Yao.EasyBuild
 using LinearAlgebra
 using Arpack
+using OMEinsum
 
 export ising_hamiltonian, ed_groundstate
 export itime_groundstate!, lanczos

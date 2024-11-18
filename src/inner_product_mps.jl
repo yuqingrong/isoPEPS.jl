@@ -6,7 +6,8 @@ struct MPS{T}
 end
 
 function dagger_mps(mps::MPS{T}) where T<:AbstractArray
-    daggered_tensors = Vector{AbstractArray}(undef, nsites)
+    nsites=length(mps.tensors)
+    daggered_tensors = Vector{AbstractArray}(undef,nsites)
     daggered_tensors[1]=conj(transpose(mps.tensors[1]))
     for i in 2:length(mps.tensors)-1
         daggered_tensors[i]= conj(permutedims(mps.tensors[i], (3, 2, 1))) # Conjugate and permute (3D)

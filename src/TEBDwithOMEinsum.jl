@@ -7,7 +7,7 @@ J = 1.0
 h = 0.2
 nsites = 10
 tau = 0.01  
-iter = 0
+iter = 1000
 
 σz = [1.0 0.0; 0.0 -1.0] 
 σx = [0.0 1.0; 1.0 0.0]
@@ -23,15 +23,15 @@ include("inner_product_mps.jl")
 
 function generate_random_mps(nsites::Int, d::Int, bond_dim::Int)
     tensors = Vector{AbstractArray}(undef, nsites)
-    tensors[1] = randn(Float64, d, bond_dim)
+    tensors[1] = rand( d, bond_dim)
     for i in 2:nsites-1
-        tensors[i] = randn(Float64, bond_dim, d, bond_dim)
+        tensors[i] = rand( bond_dim, d, bond_dim)
     end 
-    tensors[nsites] = randn(Float64, bond_dim, d)
+    tensors[nsites] = rand( bond_dim, d)
     return MPS(tensors)
 end
 mps=generate_random_mps(nsites,2,2)
-
+@show mps
 """
 mps=Array{Any,1}(undef,nsites)1·
 mps[1]=randn(2,2);mps[nsites]=randn(2,2)
@@ -45,9 +45,16 @@ function normalize!(mps)
     end
 end
 """
+function normalize!(mps)
+ 
+    global_norm = abs(inner_product(mps,mps))
+    for i in 1:length(mps.tensors)
+        mps.tensors[i] .=mps.tensors[i]/ global_norm^(1 / length(mps.tensors))
+    end
+end
 
-
-normalize!(mps.tensors)
+normalize!(mps)
+@show mps
 @show inner_product(mps,mps)
 
 function compute_energy(mps, nsites, J, h)

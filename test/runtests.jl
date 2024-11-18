@@ -1,4 +1,4 @@
-using isoPEPS
+using IsoPEPS
 using Test
 
 @testset "KrylovkitYao" begin
