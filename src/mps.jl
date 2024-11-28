@@ -11,35 +11,16 @@ mutable struct MPS{T,AT<:AbstractArray{T,3}}
 end
 
 tensors(mps::MPS) = mps.tensors
-# function generate_mps(::Type{T},bond_dim::Int,nsites::Int;d::Int=2) where T
-#     tensors=[randn(T,1,d,bond_dim)]
-#     for i in 2:(nsites-1)
-#         push!(tensors,randn(T,bond_dim,d,bond_dim))
-#     end
-#     push!(tensors,randn(T,bond_dim,d,1))
-#     return MPS(tensors)
-# end
-
-# generate_mps(bond_dim::Int,nsites::Int; d::Int=2) = generate_mps(Float64, bond_dim,nsites;d)
-
-
-
-
-
-
-function generate_mps(bond_dim::Int,nsites::Int;d::Int=2)
-    tensors=[randn(1,d,bond_dim)]
+function generate_mps(::Type{T},bond_dim::Int,nsites::Int;d::Int=2) where T
+    tensors=[randn(T,1,d,bond_dim)]
     for i in 2:(nsites-1)
-        push!(tensors,randn(bond_dim,d,bond_dim))
+        push!(tensors,randn(T,bond_dim,d,bond_dim))
     end
-    push!(tensors,randn(bond_dim,d,1))
+    push!(tensors,randn(T,bond_dim,d,1))
     return MPS(tensors)
 end
 
-
-
-
-
+generate_mps(bond_dim::Int,nsites::Int; d::Int=2) = generate_mps(Float64, bond_dim,nsites;d)
 
 
 function code_dot(bra::MPS,ket::MPS;optimizer=GreedyMethod())
