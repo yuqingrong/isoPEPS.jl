@@ -1,13 +1,14 @@
 using OMEinsum
 using LinearAlgebra
 using TensorOperations
-
+using IsoPEPS
+using Yao
 
 J = 1.0  
 h = 0.2
 nsites = 10
 tau = 0.01  
-iter = 0
+iter = 1000
  
 σz = [1.0 0.0; 0.0 -1.0] 
 σx = [0.0 1.0; 1.0 0.0]
@@ -18,8 +19,6 @@ U_ZZ=reshape(U_Z,2,2,2,2)
 H_X = -h*σx
 H_Z = -J*kron(σz, σz)
 H_ZZ = reshape(H_Z,2,2,2,2)
-
-include("inner_product_mps.jl")
 
 function generate_random_mps(nsites::Int, d::Int, bond_dim::Int)
     tensors = Vector{AbstractArray}(undef, nsites)
@@ -48,11 +47,8 @@ end
 """
 
 function normalize!(mps)
- 
-    global_norm = abs(inner_product(mps,mps))
-    for i in 1:length(mps.tensors)
-        mps.tensors[i] .=mps.tensors[i]/ global_norm^(1 / length(mps.tensors))
-    end
+    global_norm = sqrt(inner_product(mps,mps))
+    mps.tensors[1] ./= global_norm
 end
 
 
@@ -184,10 +180,11 @@ function time_evolve(iter::Int)
             end
             #normalize!(mps)
         end
+        normalize!(mps)
         if p%100==0
             println(compute_energy(mps, nsites, J, h))
         end
-        normalize!(mps)
+        
     end
     
 end

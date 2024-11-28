@@ -10,14 +10,19 @@ using Yao.EasyBuild
 using LinearAlgebra
 using Arpack
 using OMEinsum
-
+import Yao: mat
 export ising_hamiltonian, ed_groundstate
 export itime_groundstate!, lanczos
 export transverse_ising,itime_groundstate!
-export dagger_mps,inner_product
+#export dagger_mps,inner_product
+export MPS,generate_mps,code_dot
+export PEPS,generate_peps,contract_2peps,overlap_peps
 
 include("LanczosAlgorithm.jl")
 include("KrylovkitYao.jl")
 include("ImTebd.jl")
-include("inner_product_mps.jl")
+#include("inner_product_mps.jl")
+include("mps.jl")
+include("mpsandmpo.jl")
+include("peps.jl")
 end

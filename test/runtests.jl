@@ -13,6 +13,14 @@ end
     include("ImTebd.jl")
 end
 
-@testset "inner_product_mps" begin
-    include("inner_product_mps.jl")
+#@testset "inner_product_mps" begin
+    #include("inner_product_mps.jl")
+#end
+
+@testset "mps" begin
+    include("mps.jl")
+end
+
+@testset "peps" begin
+    include("peps.jl")
 end
