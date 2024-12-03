@@ -43,12 +43,41 @@ function code_dot(bra::MPS,ket::MPS;optimizer=GreedyMethod())
     end
     ixs=[index_bra...,index_ket...]
     size_dict=OMEinsum.get_size_dict(ixs,[bra.tensors...,ket.tensors...])
-    return optimize_code(DynamicEinCode(ixs,Int[]),size_dict,optimizer)
+    code=optimize_code(DynamicEinCode(ixs,Int[]),size_dict,optimizer)
+    return code(conj.(bra.tensors)..., ket.tensors...)[]
 end
 
-function LinearAlgebra.dot(mps1::MPS, mps2::MPS)
-    code = code_dot(mps1, mps2)
-    return code(conj.(mps1.tensors)..., mps2.tensors...)[]
+
+function vec2mps(v::AbstractVector; d=2, Dmax=typemax(Int), atol=1e-10)
+    state = reshape(v, 1, length(v))
+    tensors = typeof(reshape(state, 1, length(v), 1))[]
+    nsite = round(Int, log2(length(v)) ÷ log2(d))
+    @assert d^nsite == length(v) 
+    for _ = 1:nsite-1
+        state = reshape(state, (d * size(state, 1), size(state, 2) ÷ d))
+        u, s, v, err = truncated_svd(state, Dmax, atol)
+        push!(tensors, reshape(u, size(u, 1) ÷ d, d, size(u, 2)))
+        state = s .* v
+    end
+    push!(tensors, reshape(state, size(state, 1), d, 1))
+    return MPS(tensors)
 end
 
+function code_mps2vec(mps; optimizer=GreedyMethod())
+    store = IndexStore()
+    ixs = Vector{Int}[]
+    iy = Int[]
+    firstidx = newindex!(store)
+    previdx = firstidx
+    for k = 1:length(mps)
+        physical = newindex!(store)
+        nextidx = k == length(mps) ? firstidx : newindex!(store)
+        push!(ixs, [previdx, physical, nextidx])
+        push!(iy, physical)
+        previdx = nextidx
+    end
+    size_dict = OMEinsum.get_size_dict(ixs, mps)
+    code=optimize_code(DynamicEinCode(ixs, iy), size_dict, optimizer)
+    return vec(code(mps...))
+end
 

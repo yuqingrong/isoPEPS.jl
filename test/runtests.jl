@@ -24,3 +24,7 @@ end
 @testset "peps" begin
     include("peps.jl")
 end
+
+@testset "mpsandmpo" begin
+    include("mpsandmpo.jl")
+end
