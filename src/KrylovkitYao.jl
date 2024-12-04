@@ -14,3 +14,5 @@ function ed_groundstate(h::AbstractBlock)
     E, V = eigsolve(h |> mat, x0, 1, :SR, ishermitian=true)
     E[1], V[1]
 end
+
+
