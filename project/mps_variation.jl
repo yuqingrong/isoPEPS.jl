@@ -6,10 +6,14 @@ h=0.5
 
 function optimize_groundstate()
     psi=generate_mps(bond_dim,nsites)
+    @show size(psi.tensors)
     params=vcat(map(vec, psi.tensors)...)
     #params = code_mps2vec(psi)
     @show size(params)
     H=transverse_ising_mpo(nsites,h)
+    @show size(H.tensors)
+    energy = code_sandwich(psi, H, psi)
+    @show energy
     #=
     function energy_fn(params)
        
@@ -32,6 +36,7 @@ function optimize_groundstate()
     function f(params)
         update_mps_from_params!(psi, params)
         code1, energy = code_sandwich(psi, H, psi)
+        @show code1
         code2,norm_factor = code_dot(psi, psi)
         cost = energy / norm_factor
         return cost
