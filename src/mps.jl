@@ -44,7 +44,7 @@ function code_dot(bra::MPS,ket::MPS;optimizer=GreedyMethod())
     ixs=[index_bra...,index_ket...]
     size_dict=OMEinsum.get_size_dict(ixs,[bra.tensors...,ket.tensors...])
     code=optimize_code(DynamicEinCode(ixs,Int[]),size_dict,optimizer)
-    return code(conj.(bra.tensors)..., ket.tensors...)[]
+    return code,code(conj.(bra.tensors)..., ket.tensors...)[]
 end
 
 

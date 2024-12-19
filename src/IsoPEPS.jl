@@ -1,4 +1,4 @@
-# TODO: isoPEPS is not a valid module name, capitalize it
+
 module IsoPEPS
 
 using Yao, Yao.EasyBuild
@@ -11,6 +11,8 @@ using LinearAlgebra
 using Arpack
 using OMEinsum
 import Yao: mat
+using Optim
+import Optim: optimize
 
 export ising_hamiltonian, ed_groundstate
 export itime_groundstate!, lanczos
