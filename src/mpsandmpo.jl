@@ -29,23 +29,6 @@ function mps_dot_mpo(mps::MPS,mpo::MPO)
 end
   
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function code_sandwich(bra::MPS, op::MPO, ket::MPS; optimizer=GreedyMethod())
     store = IndexStore()
     ixs_bra = Vector{Int}[]

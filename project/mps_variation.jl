@@ -39,27 +39,22 @@ function optimize_groundstate()
     #G = zeros(length(params))
     function g!(G, params)
         update_mps_from_params!(psi, params)
-        
         code1, energy = code_sandwich(psi, H, psi)
         cost1, mg1 = OMEinsum.cost_and_gradient(code1, (conj.(psi.tensors)..., H.tensors..., psi.tensors...))
-        println("Size of mg1: ", size(mg1))
-        
-    
-        mg1 = vcat(map(vec, mg1[1:min(nsites, end)])...)  
-        
+        mg1 = vcat(map(vec, mg1[nsites+1:2*nsites])...)
+
         code2, norm_factor = code_dot(psi, psi)
         cost2, mg2 = OMEinsum.cost_and_gradient(code2, (conj.(psi.tensors)..., psi.tensors...))
-        
-        println("Size of mg2: ", size(mg2))
-        
         mg2 = vcat(map(vec, mg2)...)
-    
-    
+
         flattened_mg = (cost2[] * mg1 - cost1[] * mg2) / cost2[]^2
         G .= flattened_mg
     end
-    result = optimize(f, g!, params, LBFGS())
-    return result
+    result = optimize(
+        f,g!,
+        params,
+        LBFGS()
+    )
 end
     
 
